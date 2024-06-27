@@ -89,7 +89,7 @@ const App = () => {
                                 ${
                                   model == 0 || locations[0].name == ""
                                     ? "hidden"
-                                    : ""
+                                    : " "
                                 }`}
                             >
                               <div className="flex flex-col gap-2 ">
@@ -148,7 +148,7 @@ const App = () => {
                                 ${
                                   model == 0 || locations[0].name == ""
                                     ? "hidden"
-                                   : ""
+                                    : ""
                                 }`}
                             >
                               <div className="flex flex-col gap-2 ">
@@ -166,7 +166,7 @@ const App = () => {
                                           type: "stop",
                                           coordinates: [data.y, data.x],
                                         },
-                                        ...locations.slice(index + 2),
+                                        ...locations.slice(index + 3),
                                       ]);
                                     }}
                                   >
@@ -225,7 +225,7 @@ const App = () => {
                             <div
                               className={`absolute mt-6 p-2 md:w-2/12 w-10/12  rounded backdrop-blur bg-neutral-200 
                                 ${
-                                  model == 0 || locations[1].name == ""
+                                  model == 0 || locations[0].name == ""
                                     ? "hidden"
                                     : ""
                                 }`}
@@ -306,7 +306,7 @@ const App = () => {
           </div>
           <div className="m-4 w-full overflow-hidden ">
             <MapContainer
-              center={locations[0]?.coordinates ||position}
+              center={locations[0]?.coordinates || position}
               zoom={1}
               scrollWheelZoom={false}
               style={{
@@ -322,10 +322,7 @@ const App = () => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               {locations?.map((location, index) => (
-                <Marker
-                  key={index}
-                  position={location.coordinates || position}
-                >
+                <Marker key={index} position={location.coordinates || position}>
                   <Popup>{location.name}</Popup>
                 </Marker>
               ))}
