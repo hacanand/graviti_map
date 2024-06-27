@@ -139,11 +139,46 @@ const App = () => {
                             <input
                               className="flex-auto text-base font-semibold leading-5 text-gray-800 bg-transparent border-none outline-none"
                               value={location.name}
-                              onChange={(e) =>
-                                handleLocationChange(index + 2, e.target.value)
-                              }
+                              onChange={(e) => {
+                                handleLocationChange(index + 2, e.target.value);
+                                setModel(index + 2);
+                              }}
                               placeholder={`Enter ${location.type}`}
                             />
+                            <div
+                              className={`absolute mt-6 p-2 md:w-2/12 w-10/12  rounded backdrop-blur bg-neutral-200 
+                                ${
+                                  model == 0 || locations[0].name == ""
+                                    ? "hidden"
+                                    : ""
+                                }`}
+                            >
+                              <div className="flex flex-col gap-2 ">
+                                {searchData?.map((data, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex gap-2 cursor-pointer  group"
+                                    onClick={() => {
+                                      setModel(0);
+                                      setLocations([
+                                        locations[0],
+                                        ...locations.slice(1, index + 2),
+                                        {
+                                          name: data.label,
+                                          type: "stop",
+                                          coordinates: [data.y, data.x],
+                                        },
+                                        ...locations.slice(index + 2),
+                                      ]);
+                                    }}
+                                  >
+                                    <div className="text-sm group-hover:text-neutral-900  leading-4 text-neutral-500 ">
+                                      {data.label || "fetching..."}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -253,7 +288,10 @@ const App = () => {
                         <div className="justify-center max-md:max-w-full">
                           <span className="">The distance between </span>
                           <span className="font-bold">{locations[0].name}</span>
-                          <span classNametext-sm leading-4 text-black=""> and </span>
+                          <span classNametext-sm leading-4 text-black="">
+                            {" "}
+                            and{" "}
+                          </span>
                           <span className="font-bold">
                             {locations[locations.length - 1].name}
                           </span>
