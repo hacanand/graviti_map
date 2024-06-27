@@ -11,19 +11,22 @@ const App = () => {
   ]);
   const [distance, setDistance] = useState(null);
   const [searchData, setSearchData] = useState();
+  const [model, setModel] = useState(0);
+   
 
   const handleAddStop = () => {
     setLocations([...locations, { name: "", type: "stop" }]);
   };
 
   const handleLocationChange = async (index, newName) => {
+    
     const newLocations = [...locations];
     newLocations[index].name = newName;
     setLocations(newLocations);
     const timer = setTimeout(async () => {
       const results = await provider.search({ query: newName });
       setSearchData(results);
-      console.log(searchData);
+       console.log(results);
     }, 300);
     return () => clearTimeout(timer);
   };
@@ -32,9 +35,7 @@ const App = () => {
     // Here you can call the Google Maps API to calculate the distance
     setDistance(1427);
   };
-  useEffect(() => {
-    console.log(locations);
-  }, [locations]);
+//console.log(locations[0]?.coordinates);
   const position = [51.505, -0.09];
   return (
     <div className="flex flex-col h-full w-full items-center pb-14 ">
@@ -63,10 +64,9 @@ const App = () => {
                     <div className="flex flex-col grow px-5 max-md:mt-10">
                       {locations?.slice(0, 1)?.map((location, index) => (
                         <div key={index}>
-                          <div className="text-sm leading-4 text-black">
-                            {location.type.charAt(0).toUpperCase() +
-                              location.type.slice(1)}
-                          </div>
+                          <div className="text-sm leading-4 text-black"></div>
+                          {location.type.charAt(0).toUpperCase() +
+                            location.type.slice(1)}{" "}
                           <div className="flex gap-3 p-4 mt-1.5 bg-white rounded-md border border-solid border-zinc-200">
                             <div
                               className={`flex flex-col justify-center  items-center px-1 w-4 h-4 bg-white rounded-full border-2 border-solid border-zinc-800 stroke-[2px] ${
@@ -80,22 +80,39 @@ const App = () => {
                             <input
                               className=" relative flex-auto text-base font-semibold leading-5 text-gray-800 bg-transparent border-none outline-none capitalize "
                               value={location.name}
-                              onChange={(e) =>
-                                handleLocationChange(index, e.target.value)
-                              }
+                              onChange={(e) => {
+                                handleLocationChange(index, e.target.value);
+                                setModel(1);
+                              }}
                               placeholder={`Enter ${location.type}`}
                             />
                             <div
-                              className={`absolute mt-6 p-2 md:w-2/12 w-10/12  rounded backdrop-blur bg-neutral-200 ${
-                                locations[0].name == "" ? "hidden" : ""
-                              }  `}
+                              className={`absolute mt-6 p-2 md:w-2/12 w-10/12  rounded backdrop-blur bg-neutral-200 
+                                ${
+                                  model == 0 || locations[0].name == ""
+                                    ? "hidden"
+                                    : ""
+                                }`}
                             >
                               <div className="flex flex-col gap-2 ">
                                 {searchData?.map((data, index) => (
-                                  <div key={index} className="flex gap-2  ">
-                                    <div className="text-sm   leading-4 text-neutral-500 cursor-pointer hover:text-neutral-900"
-                                      onClick={() => locations[0].name = data.label}>
-                                      {data.label}
+                                  <div
+                                    key={index}
+                                    className="flex gap-2 cursor-pointer  group"
+                                    onClick={() => {
+                                      setModel(0);
+                                      setLocations([
+                                        {
+                                          name: data.label,
+                                          type: "origin",
+                                          coordinates: [data.y, data.x],
+                                        },
+                                        ...locations.slice(1),
+                                      ]);
+                                    }}
+                                  >
+                                    <div className="text-sm group-hover:text-neutral-900  leading-4 text-neutral-500 ">
+                                      {data.label || "fetching..."}
                                     </div>
                                   </div>
                                 ))}
@@ -107,9 +124,9 @@ const App = () => {
 
                       {locations?.slice(2).map((location, index) => (
                         <div key={index}>
-                          <div className="text-sm leading-4 mt-5 text-black">
+                          <div className="text-sm leading-4 text-black mt-4">
                             {location.type.charAt(0).toUpperCase() +
-                              location.type.slice(1)}
+                              location.type.slice(1)}{" "}
                           </div>
                           <div className="flex gap-3 p-4 mt-1.5 bg-white rounded-md border border-solid border-zinc-200">
                             <div
@@ -151,7 +168,7 @@ const App = () => {
                         <div key={index}>
                           <div className="text-sm leading-4 text-black">
                             {location.type.charAt(0).toUpperCase() +
-                              location.type.slice(1)}
+                              location.type.slice(1)}{" "}
                           </div>
                           <div className="flex gap-3 p-4 mt-1.5 bg-white rounded-md border border-solid border-zinc-200">
                             <div
@@ -166,19 +183,53 @@ const App = () => {
                             <input
                               className="flex-auto text-base font-semibold leading-5 text-gray-800 bg-transparent border-none outline-none capitalize"
                               value={location.name}
-                              onChange={(e) =>
-                                handleLocationChange(index + 1, e.target.value)
-                              }
+                              onChange={(e) => {
+                                handleLocationChange(index + 1, e.target.value);
+                                setModel(2);
+                              }}
                               placeholder={`Enter ${location.type}`}
                             />
+                            <div
+                              className={`absolute mt-6 p-2 md:w-2/12 w-10/12  rounded backdrop-blur bg-neutral-200 
+                                ${
+                                  model == 0 || locations[1].name == ""
+                                    ? "hidden"
+                                    : ""
+                                }`}
+                            >
+                              <div className="flex flex-col gap-2 ">
+                                {searchData?.map((data, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex gap-2 cursor-pointer  group"
+                                    onClick={() => {
+                                      setModel(0);
+                                      setLocations([
+                                        locations[0],
+                                        {
+                                          name: data.label,
+                                          type: "destination",
+                                          coordinates: [data.y, data.x],
+                                        },
+                                        ...locations.slice(2),
+                                      ]);
+                                    }}
+                                  >
+                                    <div className="text-sm group-hover:text-neutral-900  leading-4 text-neutral-500 ">
+                                      {data.label || "fetching..."}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div className="flex flex-col ml-5 w-[32%] max-md:ml-0 max-md:w-full">
+                  <div className="flex flex-col   max-md:ml-0 max-md:w-full">
                     <button
-                      className="justify-center items-center self-stretch px-8 py-6 my-auto w-full text-lg font-semibold leading-5 text-center text-white whitespace-nowrap bg-blue-800 rounded-[32px] max-md:px-5 max-md:mt-10"
+                      className="justify-center items-center mx-6   px-8 py-6 my-auto  text-lg font-semibold leading-5 text-center text-white whitespace-nowrap bg-blue-800 rounded-[32px] max-md:px-5 max-md:mt-10"
                       onClick={handleCalculate}
                     >
                       Calculate
@@ -202,7 +253,7 @@ const App = () => {
                         <div className="justify-center max-md:max-w-full">
                           <span className="">The distance between </span>
                           <span className="font-bold">{locations[0].name}</span>
-                          <span className=""> and </span>
+                          <span classNametext-sm leading-4 text-black=""> and </span>
                           <span className="font-bold">
                             {locations[locations.length - 1].name}
                           </span>
@@ -219,8 +270,8 @@ const App = () => {
           </div>
           <div className="m-4 w-full overflow-hidden ">
             <MapContainer
-              center={position}
-              zoom={13}
+              center={locations[0]?.coordinates || position}
+              zoom={1}
               scrollWheelZoom={false}
               style={{
                 height: "400px",
@@ -234,10 +285,11 @@ const App = () => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <Marker position={position}>
-                <Popup>
-                  A pretty CSS3 popup. <br /> Easily customizable.
-                </Popup>
+              <Marker position={locations[0]?.coordinates || position}>
+                <Popup>{locations[0]?.name}</Popup>
+              </Marker>
+              <Marker position={locations[1]?.coordinates || position}>
+                <Popup>{locations[1]?.name}</Popup>
               </Marker>
             </MapContainer>
           </div>
