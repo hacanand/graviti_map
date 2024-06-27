@@ -148,7 +148,7 @@ const App = () => {
                                 ${
                                   model == 0 || locations[0].name == ""
                                     ? "hidden"
-                                    : ""
+                                   : ""
                                 }`}
                             >
                               <div className="flex flex-col gap-2 ">
@@ -306,7 +306,7 @@ const App = () => {
           </div>
           <div className="m-4 w-full overflow-hidden ">
             <MapContainer
-              center={locations[0]?.coordinates || position}
+              center={locations[0]?.coordinates ||position}
               zoom={1}
               scrollWheelZoom={false}
               style={{
@@ -321,12 +321,14 @@ const App = () => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <Marker position={locations[0]?.coordinates || position}>
-                <Popup>{locations[0]?.name}</Popup>
-              </Marker>
-              <Marker position={locations[1]?.coordinates || position}>
-                <Popup>{locations[1]?.name}</Popup>
-              </Marker>
+              {locations?.map((location, index) => (
+                <Marker
+                  key={index}
+                  position={location.coordinates || position}
+                >
+                  <Popup>{location.name}</Popup>
+                </Marker>
+              ))}
             </MapContainer>
           </div>
         </div>
